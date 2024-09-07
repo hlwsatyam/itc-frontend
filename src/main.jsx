@@ -6,7 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter } from "react-router-dom";
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+ 
     <BrowserRouter>
       <App />
       <ToastContainer
@@ -22,5 +22,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         theme="dark"
       />
     </BrowserRouter>
-  </React.StrictMode>,
+ 
 );

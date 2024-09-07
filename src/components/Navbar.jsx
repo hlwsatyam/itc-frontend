@@ -74,6 +74,7 @@ export default function Navbar({ isFormOpen, setIsFormOpen }) {
                 className="h-[50px] w-[200px]"
                 srcset=""
               />
+
               <IoMdClose
                 onClick={() => setIsOpen(false)}
                 className="size-7 cursor-pointer text-primary-end"
@@ -81,13 +82,13 @@ export default function Navbar({ isFormOpen, setIsFormOpen }) {
             </div>
           ) : (
             <div className="flex items-center gap-x-20">
-              <img
-                onClick={() => setIsFormOpen(!isFormOpen)}
-                src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZnl6MGQwcXUxN2V4MjVjN3c1aGxzZTFpeTlyaXR0ZGgxa2NrNDUxYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/i8cYLHptr8q1nwyvyp/giphy.webp"
-                alt=""
-                className="h-[50px] w-[200px]"
-                srcset=""
-              />
+              <a
+                className=" p-1   rounded bg-indigo-600 text-center  text-[19px] ml-4 text-white opacity-80 hover:text-primary-start hover:opacity-100"
+                href="/check-status"
+              >
+                Check Status
+              </a>
+              
               <HiMiniBars3BottomRight
                 onClick={() => setIsOpen(true)}
                 className="size-7 cursor-pointer text-primary-end"

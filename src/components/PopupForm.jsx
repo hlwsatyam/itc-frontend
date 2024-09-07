@@ -8,7 +8,7 @@ function PopupForm({ isFormOpen, setIsFormOpen }) {
     mobile: "",
     email: "",
     address: "",
-     
+    willMailShare:"No",
     area: "",
     pincode: "",
     state: "",

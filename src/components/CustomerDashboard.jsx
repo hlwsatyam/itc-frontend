@@ -6,7 +6,7 @@ import {
   BiPurchaseTag,
   BiStore,
 } from "react-icons/bi";
-import { BsFlower2, BsGenderAmbiguous } from "react-icons/bs";
+import { BsFlower2, BsGenderAmbiguous, BsSegmentedNav } from "react-icons/bs";
 
 import {
   FaSignOutAlt,
@@ -22,7 +22,7 @@ import { FiShield } from "react-icons/fi";
 import { GiStarFlag } from "react-icons/gi";
 import { GrCapacity } from "react-icons/gr";
 import { IoBusinessOutline, IoResize } from "react-icons/io5";
-import { MdGroupWork, MdMarkChatRead } from "react-icons/md";
+import { MdBusinessCenter, MdGroupWork, MdMarkChatRead } from "react-icons/md";
 import { PiAvocadoFill, PiNumberCircleFiveBold } from "react-icons/pi";
 import { SiEducative, SiExpertsexchange } from "react-icons/si";
 import { TbPdf } from "react-icons/tb";
@@ -44,7 +44,7 @@ const CustomerDashboard = () => {
       window.location.href = "/";
     }
   }, []);
-
+ 
   const fetchData = async (isUserLogged) => {
     try {
       const url = `${backendUrl}/api/lead`;
@@ -99,11 +99,11 @@ const CustomerDashboard = () => {
               className="mr-2 h-8 w-8 rounded-full object-cover"
               src="https://www.itcdistributorships.in/images/logo.png"
               alt="Logo"
-            />
-          </a>
+            /> 
+          </a> 
           <span className="hidden sm:block"> Customer Dashboard</span>
         </h1>
-        <div className="my-2 flex items-center justify-center gap-x-2 gap-y-2 flex-col sm:flex-row">
+        <div className="my-2 flex flex-col items-center justify-center gap-x-2 gap-y-2 sm:flex-row">
           {userDetails?.approvalLetter && (
             <Button
               onClick={() =>
@@ -276,6 +276,45 @@ const CustomerDashboard = () => {
                     Business Address
                   </h2>
                   <p className="text-gray-600">{userDetails.businessAddress}</p>
+                </div>
+              </div>
+            )}
+            {userDetails["available_investment_(select_one)"] && (
+              <div className="flex items-center rounded-lg bg-gray-100 p-4 shadow-sm">
+                <BiMoney className="mr-4 text-2xl text-red-500" />
+                <div>
+                  <h2 className="mb-1 text-xl font-medium text-gray-700">
+                    Estimated Investment Capacity
+                  </h2>
+                  <p className="text-gray-600">
+                    {userDetails["available_investment_(select_one)"]}
+                  </p>
+                </div>
+              </div>
+            )}
+            {userDetails["preferred_franchisee_segment_(select_one)"] && (
+              <div className="flex items-center rounded-lg bg-gray-100 p-4 shadow-sm">
+                <BsSegmentedNav className="mr-4 text-2xl text-red-500" />
+                <div>
+                  <h2 className="mb-1 text-xl font-medium text-gray-700">
+                    Preferred Franchisee Segment
+                  </h2>
+                  <p className="text-gray-600">
+                    {userDetails["preferred_franchisee_segment_(select_one)"]}
+                  </p>
+                </div>
+              </div>
+            )}
+            {userDetails["preferred_business_type_(select_one)"] && (
+              <div className="flex items-center rounded-lg bg-gray-100 p-4 shadow-sm">
+                <MdBusinessCenter className="mr-4 text-2xl text-red-500" />
+                <div>
+                  <h2 className="mb-1 text-xl font-medium text-gray-700">
+                    Preferred Business Type
+                  </h2>
+                  <p className="text-gray-600">
+                    {userDetails["preferred_business_type_(select_one)"]}
+                  </p>
                 </div>
               </div>
             )}

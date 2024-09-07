@@ -3,12 +3,19 @@ import { FaRegClock } from "react-icons/fa";
 import { FiCheckCircle } from "react-icons/fi";
 import { IoPlayOutline } from "react-icons/io5";
 import { PiAvocadoLight, PiPlusCircleBold } from "react-icons/pi";
-
+import React from "react";
+import ReactPlayer from "react-player";
+import ImgCarousel from "./ImgCarousel";
+import vid from "../Img/e.webm";
 export default function VideoSection() {
   return (
-    <div  id="contact"  className="mx-auto max-w-screen-xl p-3 pb-28 md:pb-[164px]">
+    <div
+      id="contact"
+      className="mx-auto max-w-screen-xl p-3 pb-28 md:pb-[164px]"
+    >
+      <ImgCarousel />
       <p className="mb-3 text-center font-poppins text-[22px] font-medium text-secondary">
-      ITC Limited Product Distributorship investment
+        ITC Limited Product Distributorship investment
       </p>
 
       {/* <div className="relative mt-4 flex w-full items-center justify-center">
@@ -20,12 +27,14 @@ export default function VideoSection() {
 
       <div>
         <h4 className="mb-3 mt-4 text-center font-poppins text-[32px] font-semibold text-[#031432]">
-        To apply for ITC Limited Distributorship
+          To apply for ITC Limited Distributorship
         </h4>
         <p className="mx-auto max-w-[843px] text-center text-para">
-        The space must be strategically located, with separate areas for office operations and storage. Proper planning of space allocation is crucial for efficient business operations.
-
-Required Documents for ITC Limited Distributorship: To apply for ITC Limited Distributorship, you will need to submit the following documents:
+          The space must be strategically located, with separate areas for
+          office operations and storage. Proper planning of space allocation is
+          crucial for efficient business operations. Required Documents for ITC
+          Limited Distributorship: To apply for ITC Limited Distributorship, you
+          will need to submit the following documents:
         </p>
       </div>
 
@@ -35,9 +44,16 @@ Required Documents for ITC Limited Distributorship: To apply for ITC Limited Dis
         <Item title="Bank Account with Passbook" Icon={PiPlusCircleBold} />
         <Item title="Photograph, Email ID, Phone Number" Icon={BiPhotoAlbum} />
       </div>
+      <div className=" my-8"  >
+        <VideoTab  />
+      </div>
     </div>
   );
 }
+
+const VideoTab = () => {
+  return <ReactPlayer  width={"100%"} height={"400px"}  url={vid} light={"https://etimg.etb2bimg.com/photo/103337597.cms"} playing controls />;
+};
 
 function Item({ Icon = FaRegClock, title = "" }) {
   return (

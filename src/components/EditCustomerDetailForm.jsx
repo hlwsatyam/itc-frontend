@@ -1,17 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { backendUrl, validateGmail, validateIndianMobileNumber } from "../helpers";
+import {
+  backendUrl,
+  validateGmail,
+  validateIndianMobileNumber,
+} from "../helpers";
 import InputLabelTab from "./ui/InputLabelTab";
 import InputCheckBoxYesOrNo from "./ui/InputCheckBoxYesOrNo";
 import InputSelect from "./ui/InputSelect";
 
-function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
+function EditCustomerDetailForm({
+  fetchLead,
+  isExcutiveMode = false,
+  id,
+  isAdmin,
+  isFormOpen,
+  setIsFormOpen,
+}) {
   if (!id) return null;
   const [formData, setFormData] = useState({
     image: null,
     nameTitle: "",
     name: "",
+    area: "",
     email: "",
+    postOffice: "",
     mobile: "",
     marriageStatus: "",
     address: "",
@@ -22,6 +35,13 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
     businessType: "",
     experienceInBusiness: "",
     currentYearTurnover: "",
+    pincode: "",
+
+    "available_investment_(select_one)": "",
+    "preferred_franchisee_segment_(select_one)": "",
+    state: "",
+    disctict: "",
+    "preferred_business_type_(select_one)": "",
     noOfEmploy: "",
     PriviousExperienceInFranchisee: "",
     researchedOtherFranchisee: "",
@@ -35,9 +55,11 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
     qualification: "",
   });
 
+  const [allPostOffices, setAllPostOffices] = useState([]);
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [id]);
 
   const fetchData = async () => {
     try {
@@ -60,14 +82,52 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
+    if (name === "pincode") {
+      const response = await fetch(
+        `https://api.postalpincode.in/pincode/${value}`,
+      );
+      const data = await response.json();
+      if (data[0].Status === "Success") {
+        setAllPostOffices(data[0].PostOffice);
 
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+        setFormData({
+          ...formData,
+          pincode: value,
+          disctict: data[0].PostOffice[0].District,
+          state: data[0].PostOffice[0].Circle,
+        });
+      } else {
+        setFormData({
+          ...formData,
+          pincode: value,
+        });
+      }
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
+
+  useEffect(() => {
+    if (formData.pincode != "") fetchPostOffice();
+  }, [id]);
+
+  const fetchPostOffice = async () => {
+    try {
+      const response = await fetch(
+        `https://api.postalpincode.in/pincode/${formData.pincode}`,
+      );
+      const data = await response.json();
+      if (data[0].Status === "Success") {
+        setAllPostOffices(data[0].PostOffice);
+      }
+    } catch (error) {}
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -79,9 +139,6 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-
-
 
     try {
       const response = await fetch(`${backendUrl}/api/editSave/${id}`, {
@@ -95,7 +152,7 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
         const data = await response.json();
         toast.success(data.message, {
           position: "top-left",
-          autoClose: 20000,
+          autoClose: 2000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
@@ -104,6 +161,8 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
           theme: "dark",
         });
         setIsFormOpen(false);
+        if (isExcutiveMode) fetchLead(localStorage.getItem("excutiveLogged"));
+        if (isAdmin) fetchLead( );
       } else {
         alert("Failed to submit form");
       }
@@ -125,47 +184,48 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
             </button>
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-      <label
-        className="mb-2 block text-sm font-medium text-gray-200"
-        htmlFor="profile-image-input"
-      >
-        Profile Image
-      </label>
+            {/* <div>
+              <label
+                className="mb-2 block text-sm font-medium text-gray-200"
+                htmlFor="profile-image-input"
+              >
+                Profile Image
+              </label>
 
-      <label htmlFor="profile-image-input" style={{ cursor: "pointer" }}>
-        {formData.image ? (
-          <img
-            src={URL.createObjectURL(formData.image)}
-            alt="Selected"
-            style={{ maxWidth: "100%", height: "160px" }}
-          />
-        ) : (
-          <div
-            style={{
-              width: "150px",
-              height: "150px",
-              backgroundColor: "#ccc",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              color: "#666",
-            }}
-          >
-            Click to select an image
-          </div>
-        )}
-      </label>
-
-      <input
-        type="file"
-        id="profile-image-input"
-        accept="image/*"
-        style={{ display: "none" }} // Hide the input
-        onChange={handleImageChange}
-      />
-    </div>
-            {}
+              <label
+                htmlFor="profile-image-input"
+                style={{ cursor: "pointer" }}
+              >
+                {formData.image ? (
+                  <img
+                    src={URL.createObjectURL(formData.image)}
+                    alt="Selected"
+                    style={{ maxWidth: "100%", height: "160px" }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "150px",
+                      height: "150px",
+                      backgroundColor: "#ccc",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      color: "#666",
+                    }}
+                  >
+                    Click to select an image
+                  </div>
+                )}
+              </label>
+              <input
+                type="file"
+                id="profile-image-input"
+                accept="image/*"
+                style={{ display: "none" }} // Hide the input
+                onChange={handleImageChange}
+              />
+            </div> */}
             <InputSelect
               name={"nameTitle"}
               options={["Mr", "Mrs", "Miss"]}
@@ -190,6 +250,7 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
             />
             <InputLabelTab
               name={"mobile"}
+              readOnly={true}
               label={"Mobile"}
               placeholder={"Enter your mobile number"}
               value={formData.mobile}
@@ -229,10 +290,64 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
               handleChange={handleChange}
             />
             <InputLabelTab
+              name={"pincode"}
+              label={"Pin Code"}
+              placeholder={"Enter your Pinocde"}
+              value={formData.pincode}
+              handleChange={handleChange}
+            />
+            {allPostOffices?.length > 0 && (
+              <div>
+                <label
+                  htmlFor="postOffice"
+                  className="block text-sm font-medium text-gray-200"
+                >
+                  Select Post Office
+                </label>
+                <select
+                  id="postOffice"
+                  name="postOffice"
+                  value={formData.postOffice}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                   
+                >
+                  <option value="">Select a post office</option>
+                  {allPostOffices.map((office) => (
+                    <option key={office.Name} value={office.Name}>
+                      {office.Name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <InputLabelTab
+              name={"disctict"}
+              label={"Distict"}
+              placeholder={"Enter your District"}
+              value={formData.disctict}
+              handleChange={handleChange}
+            />
+            <InputLabelTab
+              name={"state"}
+              label={"State"}
+              placeholder={"Enter your State"}
+              value={formData.state}
+              handleChange={handleChange}
+            />
+            <InputLabelTab
               name={"address"}
               label={"Address"}
               placeholder={"Enter your Address"}
               value={formData.address}
+              handleChange={handleChange}
+            />
+            <InputSelect
+              name={"area"}
+              options={["Rural ग्रामीण ", "Urban शहरी"]}
+              label={"Selct a Current Area Type"}
+              placeholder={"Enter your Area"}
+              value={formData.area}
               handleChange={handleChange}
             />
             <InputLabelTab
@@ -278,7 +393,7 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
             />
             <InputSelect
               name={"experienceInBusiness"}
-              options={["0-5 Year", "5-100 Year", "Above 10 Years"]}
+              options={["0-5 Year", "5-10 Year", "Above 10 Years"]}
               label={"Selct a business Experience Years"}
               placeholder={"Enter your name"}
               value={formData.experienceInBusiness}
@@ -313,11 +428,36 @@ function EditCustomerDetailForm({ id, isFormOpen, setIsFormOpen }) {
               handleChange={handleChange}
             />
             <InputSelect
-              name={"estimatedInve4stmentCapacity"}
-              options={["5-10 Lacs", "10-25 Lacs", "Above 25 Lacs"]}
+              name={"available_investment_(select_one)"}
+              options={[
+                "₹5_lakhs_to_₹10_lakhs",
+                "₹10_lakhs_to_₹25_lakhs",
+                "₹25_lakhs_and_above",
+              ]}
               label={"Selct Your Estimated Investment Capacity"}
               placeholder={"Enter your name"}
-              value={formData.estimatedInve4stmentCapacity}
+              value={formData["available_investment_(select_one)"]}
+              handleChange={handleChange}
+            />
+            <InputSelect
+              name={"preferred_franchisee_segment_(select_one)"}
+              options={[
+                "cigarettes_and_cigars",
+                "education",
+                "fmcg",
+                "personal_care",
+              ]}
+              label={"Preferred Franchisee Segment"}
+              placeholder={"Enter your name"}
+              value={formData["preferred_franchisee_segment_(select_one)"]}
+              handleChange={handleChange}
+            />
+            <InputSelect
+              name={"preferred_business_type_(select_one)"}
+              options={["distributorship", "dealership", "franchisee"]}
+              label={"Preferred Business Type"}
+              placeholder={"Enter your name"}
+              value={formData["preferred_business_type_(select_one)"]}
               handleChange={handleChange}
             />
             <InputCheckBoxYesOrNo

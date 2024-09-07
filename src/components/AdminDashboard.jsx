@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui";
-import { BiBook, BiEdit, BiLogOut } from "react-icons/bi";
+import { BiBook, BiEdit, BiLogOut, BiUpload } from "react-icons/bi";
 import {
   BsBank,
   BsCheckCircle,
@@ -13,11 +13,14 @@ import {
 import { SiWelcometothejungle } from "react-icons/si";
 import { PiApproximateEqualsBold } from "react-icons/pi";
 import { RiOrderPlayFill } from "react-icons/ri";
-import { TiCancel } from "react-icons/ti";
+import { TiCancel, TiTime } from "react-icons/ti";
 import { FiDelete } from "react-icons/fi";
 import { toast } from "react-toastify";
 import EditCustomerDetailForm from "./EditCustomerDetailForm";
 import { backendUrl } from "../helpers";
+import { CgUserAdd } from "react-icons/cg";
+import ScheduleMeetingForm from "./ShadualeDate";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [leads, setLeads] = useState([]);
@@ -38,25 +41,15 @@ const AdminDashboard = () => {
     };
   }, [searchTerm]);
 
-  // Fetch data when debouncedSearchTerm changes
-  useEffect(() => {
-    const isAdminLogged = localStorage.getItem("adminLogged");
-    if (isAdminLogged === "true") {
-      fetchData();
-    } else {
-      window.location.href = "/";
-    }
-  }, [debouncedSearchTerm]);
-
   const fetchData = async () => {
     try {
       const url =
         debouncedSearchTerm === ""
-          ?  `${backendUrl}/api/leads` 
+          ? `${backendUrl}/api/leads`
           : `${backendUrl}/api/leads/${debouncedSearchTerm}`;
       const res = await axios.post(url, {});
       if (res.status === 200) {
-        setLeads(res.data);
+        setLeads(res.data.leads);
       }
     } catch (error) {
       console.error("Error fetching leads:", error);
@@ -68,10 +61,7 @@ const AdminDashboard = () => {
     window.location.href = "/";
   };
   const deleteHandler = async (id) => {
-    const res = await axios.post(
-      `${backendUrl}/api/lead/delete/${id}`,
-      {},
-    );
+    const res = await axios.post(`${backendUrl}/api/lead/delete/${id}`, {});
     if (res.status === 200) {
       toast.error(res.data.message, {
         position: "top-left",
@@ -103,6 +93,7 @@ const AdminDashboard = () => {
         progress: undefined,
         theme: "dark",
       });
+      window.location.reload();
     }
   };
   const sendwelcomeHandler = async (id) => {
@@ -121,13 +112,12 @@ const AdminDashboard = () => {
         progress: undefined,
         theme: "dark",
       });
+
+      window.location.reload();
     }
   };
   const sendCancelHandler = async (id) => {
-    const res = await axios.post(
-      `${backendUrl}/api/lead/sendCancel/${id}`,
-      {},
-    );
+    const res = await axios.post(`${backendUrl}/api/lead/sendCancel/${id}`, {});
     if (res.status === 200) {
       toast.success(res.data.message, {
         position: "top-left",
@@ -143,13 +133,30 @@ const AdminDashboard = () => {
       setLeads(latestLead);
     }
   };
-  const sendAproovalHandler = async (id) => {
-    const res = await axios.post(
-      `${backendUrl}/api/lead/sendAprooval/${id}`,
-      {},
-    );
-    if (res.status === 200) {
-      toast.success(res.data.message, {
+  const handleStatusChange = async (e, id) => {
+    try {
+      const selectedStage = e.target.value;
+      console.log(selectedStage);
+      const res = await axios.post(
+        `${backendUrl}/api/lead/leadManagementStages/${id}`,
+        { leadManagementStage: selectedStage },
+      );
+      if (res.status === 200) {
+        toast.success(res.data.message, {
+          position: "top-left",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Error updating lead status:", error);
+      toast.error("Failed to update lead status", {
         position: "top-left",
         autoClose: 2000,
         hideProgressBar: false,
@@ -161,6 +168,7 @@ const AdminDashboard = () => {
       });
     }
   };
+
   const accountHandler = () => {
     window.location.href = "/addaccount";
   };
@@ -213,6 +221,7 @@ const AdminDashboard = () => {
           progress: undefined,
           theme: "dark",
         });
+        window.location.reload();
       }
     } catch (error) {
       console.log(error);
@@ -259,6 +268,7 @@ const AdminDashboard = () => {
           progress: undefined,
           theme: "dark",
         });
+        window.location.reload();
       }
     } catch (error) {
       console.log(error);
@@ -305,6 +315,7 @@ const AdminDashboard = () => {
           progress: undefined,
           theme: "dark",
         });
+        window.location.reload();
       }
     } catch (error) {
       console.log(error);
@@ -320,19 +331,48 @@ const AdminDashboard = () => {
       });
     }
   };
-
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentUpdateID, setCurrentUpdateID] = useState(null);
+  const [currentClickedID, setCurrentClickedID] = useState(null);
+  const userHandler = () => {
+    window.location.href = "/customer-dashboard/users";
+  };
 
+  const shadualeLeadHandler = (id) => {
+    setCurrentClickedID(id);
+    setModalIsOpen(true);
+  };
+
+  // Fetch data when debouncedSearchTerm changes
+  useEffect(() => {
+    const isAdminLogged = localStorage.getItem("adminLogged");
+    if (isAdminLogged === "true") {
+      fetchData();
+    } else {
+      window.location.href = "/";
+    }
+  }, [debouncedSearchTerm]);
+
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+      <ScheduleMeetingForm
+        setIsOpen={setModalIsOpen}
+        id={currentClickedID}
+        isAdmin={true}
+        fetchLead={fetchData}
+        isOpen={modalIsOpen}
+      />
       <EditCustomerDetailForm
+        isAdmin={true}
+        fetchLead={fetchData}
         isFormOpen={isFormOpen}
         setIsFormOpen={setIsFormOpen}
         id={currentUpdateID}
       />
-      <h1 className="relative mb-8 flex items-center justify-between gap-x-8 text-[17px] font-bold text-gray-800">
-        <h1 className="mb-4 flex items-center font-semibold text-gray-800">
+      <h1 className="relative mb-8 flex items-center justify-between text-[17px] font-bold text-gray-800">
+        <h1 className="font-semibold text-gray-800">
           <a href="/">
             <img
               className="mr-2 h-8 w-8 rounded-full object-cover"
@@ -340,30 +380,43 @@ const AdminDashboard = () => {
               alt="Logo"
             />
           </a>
-          Dashboard
         </h1>
         <Button
-          className="!px-2 !py-1 text-[13px]"
+          className="!px-2 !py-1 text-[0px] sm:text-[13px]"
           onClick={accountHandler}
           title="Add Acount"
           Icon={BsBank}
-        />{" "}
+        />
+        <Button
+          className="!px-2 !py-1 text-[0px] sm:text-[13px]"
+          onClick={userHandler}
+          title="Users"
+          Icon={CgUserAdd}
+        />
         <input
           type="text"
           onChange={(e) => setSearchTerm(e.target.value)}
           value={searchTerm}
           placeholder="Search"
-          className="absolute right-[20%] rounded-lg border border-gray-300 px-4 py-2 text-[12px]"
+          className="rounded-lg border border-gray-300 px-4 py-2 text-[12px]"
+        />{" "}
+        <Button
+          onClick={() => {
+            window.location.href = "/admin/insert";
+          }}
+          title=""
+          className="!px-2 !py-1 text-[0px] sm:text-[11px]"
+          Icon={BiUpload}
         />{" "}
         <Button
           onClick={logoutHandler}
           title="Logout"
-          className="!px-2 !py-1 text-[13px]"
+          className="!px-2 !py-1 text-[0px] sm:text-[11px]"
           Icon={BiLogOut}
         />{" "}
       </h1>
 
-      <div className="overflow-hidden rounded-lg bg-white shadow-md">
+      <div className="overflow-y-auto rounded-lg bg-white shadow-md">
         <table className="min-w-full bg-white">
           <thead className="bg-blue-600 text-white">
             <tr>
@@ -379,15 +432,29 @@ const AdminDashboard = () => {
               <th className="px-4 py-3 text-left text-sm font-semibold uppercase">
                 Address
               </th>
+              <th className="px-4 py-3 text-left text-sm font-semibold uppercase">
+                Date
+              </th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
             {leads?.map((lead, index) => (
               <tr
                 key={index}
+                onClick={(event) => {
+                  // Check if the clicked element is a button or inside a button
+                  if (
+                    event.target.tagName !== "BUTTON" &&
+                    !event.target.closest("button")
+                  ) {
+                    navigate("/customer-dashboard/lead", {
+                      state: { leadId: lead._id, isAdminClicked: true },
+                    });
+                  }
+                }}
                 onMouseOver={() => setHoveredRowIndex(index)}
                 onMouseLeave={() => setHoveredRowIndex(null)}
-                className="border-t hover:bg-gray-300"
+                className={`border-t ${lead?.isSomethingChange ? "bg-green-700/40" : ""} hover:bg-gray-300`}
               >
                 {hoveredRowIndex === index ? (
                   <td colSpan="8" className="px-4 py-3">
@@ -408,15 +475,14 @@ const AdminDashboard = () => {
                     </td>
                     <div className="flex justify-center space-x-2">
                       <Button
-                        className="!px-2 !py-1 text-[13px]"
+                        className="h-[17px] !text-[10px]"
                         title="Welcome"
                         onClick={() => sendwelcomeHandler(lead._id)}
                         Icon={SiWelcometothejungle}
                       />
                       <Button
-                        className={` ${lead?.approvalLetter && "!text-blue-900"} !px-2 !py-1 text-[13px]`}
-                        title="Approval
-"
+                        className={` ${lead?.approvalLetter && "!text-blue-900"} h-[17px] !text-[10px]`}
+                        title="Approval"
                         onClick={() => handleButtonClickForApprooval(lead._id)}
                         Icon={PiApproximateEqualsBold}
                       />{" "}
@@ -430,7 +496,7 @@ const AdminDashboard = () => {
                         }
                       />
                       <Button
-                        className={`!px-2 ${lead?.agreementLetterName && "!text-blue-900"} !py-1 text-[13px]`}
+                        className={`!px-2 ${lead?.agreementLetterName && "!text-blue-900"} h-[17px] !text-[10px]`}
                         title="Agreement"
                         Icon={BiBook}
                         onClick={() => handleButtonClickForAgreement(lead._id)}
@@ -443,7 +509,7 @@ const AdminDashboard = () => {
                         onChange={(event) => handleFileChange(event, lead._id)}
                       />
                       <Button
-                        className={`!px-2 !py-1 ${lead?.purchaseOrderLetterName && "!text-blue-900"} text-[13px]`}
+                        className={` ${lead?.purchaseOrderLetterName && "!text-blue-900"} h-[17px] !text-[10px]`}
                         title="PurchaseOrder"
                         onClick={() => handleButtonClickForPO(lead._id)}
                         Icon={RiOrderPlayFill}
@@ -458,32 +524,66 @@ const AdminDashboard = () => {
                         }
                       />
                       <Button
-                        className="!px-2 !py-1 text-[13px]"
-                        title="Cancelation"
+                        className="h-[17px] !text-[10px]"
+                        title=""
                         Icon={TiCancel}
                         onClick={() => sendCancelHandler(lead._id)}
                       />
                       <Button
-                        className="!px-2 !py-1 text-[13px]"
-                        title="ShareBankDetail"
+                        className="h-[17px] !text-[10px]"
+                        title=""
                         Icon={BsBank}
                         onClick={() => sendBankDetailHandler(lead._id)}
                       />
                       <Button
                         className="!px-2 !py-1 text-[13px]"
-                        title="Edit"
+                        title=""
                         onClick={() => {
-                          setIsFormOpen(!isFormOpen)
-                          setCurrentUpdateID(lead._id)
+                          setIsFormOpen(!isFormOpen);
+                          setCurrentUpdateID(lead._id);
                         }}
                         Icon={BiEdit}
                       />
                       <Button
                         className="!px-2 !py-1 text-[13px]"
-                        title="Delete"
+                        title=""
                         onClick={() => deleteHandler(lead._id)}
                         Icon={FiDelete}
                       />
+                      <Button
+                        className="h-[17px] !text-[10px]"
+                        title={lead?.shadualeTime || ""}
+                        onClick={() => shadualeLeadHandler(lead._id)}
+                        Icon={TiTime}
+                      />
+                      <select
+                        value={lead.leadManagementStages}
+                        className="h-[100] rounded bg-blue-600 !text-[10px] text-white"
+                        onChange={(e) => handleStatusChange(e, lead._id)}
+                      >
+                        <option value="New Lead">New Lead</option>
+                        <option value="Callback">Callback</option>
+                        <option value="Connected">Connected</option>
+                        <option value="Junk Lead">Junk Lead</option>
+                        <option value="Interested">Interested</option>
+
+                        <option value="Document Received">
+                          Document Received
+                        </option>
+                        <option value="Approval Process">
+                          Approval Process
+                        </option>
+                        <option value="Agreement Process">
+                          Agreement Process
+                        </option>
+                        <option value="Purchase Order Process">
+                          Purchase Order Process
+                        </option>
+                        <option value="Cancellation">Cancellation</option>
+                        <option value="Process Completed">
+                          Process Completed
+                        </option>
+                      </select>
                     </div>
                   </td>
                 ) : (
@@ -502,6 +602,10 @@ const AdminDashboard = () => {
                         {lead.area}, {lead.address}, {lead.postOffice},{" "}
                         {lead.district}, {lead.state}, {lead.pincode}
                       </span>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {new Date(lead.createdAt).toLocaleDateString()}
                     </td>
                   </>
                 )}

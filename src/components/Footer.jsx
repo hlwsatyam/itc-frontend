@@ -72,7 +72,7 @@ const Footer = () => {
                   href="#brand"
                   className="transition-colors hover:text-gray-400"
                 >
-                  brnad
+                  Brand
                 </a>
               </li>
               <li>
@@ -105,12 +105,6 @@ const Footer = () => {
                 <FaEnvelope className="inline" /> contactus@itcportals.com
               </a>{" "}
               <br />
-              <a
-                href="tel:+918448024627"
-                className="transition-colors hover:text-gray-400"
-              >
-              <IoCall  className="inline"  />  +918448024627
-              </a>
             </p>
           </div>
 

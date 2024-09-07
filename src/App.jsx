@@ -14,14 +14,26 @@ import { CheckStatus } from "./components/CheckStatus.jsx";
 import AdminDashboard from "./components/AdminDashboard.jsx";
 import CustomerDashboard from "./components/CustomerDashboard.jsx";
 import AddAccount from "./components/AddAccount.jsx";
+import AdminUser from "./AdminUser.jsx";
+import AddUser from "./components/AddUser.jsx";
+import AdminDashboardForUser from "./components/AdminDasboardForUser.jsx";
+import ScheduleMeetingForm from "./components/ShadualeDate.jsx";
+import LeadIntert from "./components/LeadIntert.jsx";
+import AdminUserEdit from "./components/AdminUserEdit.jsx";
+import LeadPanel from "./components/LeadPanel.jsx";
 function App() {
   const [isFormOpen, setIsFormOpen] = useState(true);
 
   const location = useLocation();
 
   const hideHeaderAndFooter =
-    location.pathname === "/check-status" ||
+    location.pathname === "/customer-dashboard/users" ||
     location.pathname === "/admin-dashboard" ||
+    location.pathname === "/addaccount" ||
+    location.pathname === "/check-status" ||
+    location.pathname === "/excutive-dashboard" ||
+    location.pathname === "/customer-dashboard/lead" ||
+    location.pathname === "/customer-dashboard/users/add-user" ||
     location.pathname === "/customer-dashboard";
   return (
     <>
@@ -40,8 +52,18 @@ function App() {
         />
         <Route path="/check-status" element={<CheckStatus />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/excutive-dashboard" element={<AdminDashboardForUser />} />
+        <Route path="/admin/insert" element={<LeadIntert />} />
         <Route path="/addaccount" element={<AddAccount />} />
         <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+        <Route path="/customer-dashboard/lead" element={<LeadPanel />} />
+   
+        <Route path="/customer-dashboard/users" element={<AdminUser />} />
+        <Route path="/customer-dashboard/users/edit" element={<AdminUserEdit />} />
+        <Route
+          path="/customer-dashboard/users/add-user"
+          element={<AddUser />}
+        />
       </Routes>
       {!hideHeaderAndFooter && <Footer />}
     </>

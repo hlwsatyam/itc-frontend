@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { backendUrl } from "../helpers";
+import UserHeader from "./ui/UserHeader";
 
 function AddAccount() {
   const [bankName, setBankName] = useState("");
@@ -30,9 +31,7 @@ function AddAccount() {
 
   const fetchBankDetails = async () => {
     try {
-      const response = await axios.get(
-        `${backendUrl}/api/bank-details`,
-      );
+      const response = await axios.get(`${backendUrl}/api/bank-details`);
       setBankDetails(response.data);
     } catch (error) {
       console.error("Error fetching bank details:", error);
@@ -42,15 +41,12 @@ function AddAccount() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-         `${backendUrl}/api/bank-details` ,
-        {
-          bankName,
-          accountNumber,
-          ifscCode,
-          holderName,
-        },
-      );
+      const response = await axios.post(`${backendUrl}/api/bank-details`, {
+        bankName,
+        accountNumber,
+        ifscCode,
+        holderName,
+      });
       if (response.status === 200) {
         toast.success("Bank Details Added!", {
           position: "top-left",
@@ -94,6 +90,7 @@ function AddAccount() {
 
   return (
     <div className="container mx-auto p-8">
+      <UserHeader isAccountBTNshown={false} />
       <h2 className="mb-4 text-2xl font-bold">Add Bank Account</h2>
       <form
         onSubmit={handleSubmit}
