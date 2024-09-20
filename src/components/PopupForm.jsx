@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { backendUrl, validateGmail, validateIndianMobileNumber } from "../helpers";
+import {
+  backendUrl,
+  validateGmail,
+  validateIndianMobileNumber,
+} from "../helpers";
+import axios from "axios";
+import InputSelect from "./ui/InputSelect";
 
 function PopupForm({ isFormOpen, setIsFormOpen }) {
   const [formData, setFormData] = useState({
@@ -8,10 +14,12 @@ function PopupForm({ isFormOpen, setIsFormOpen }) {
     mobile: "",
     email: "",
     address: "",
-    willMailShare:"No",
+    willMailShare: "No",
     area: "",
     pincode: "",
     state: "",
+    "available_investment_(select_one)": "",
+    "preferred_franchisee_segment_(select_one)": "",
     disctict: "",
     postOffice: "",
   });
@@ -87,20 +95,26 @@ function PopupForm({ isFormOpen, setIsFormOpen }) {
     }
 
     try {
-      const response = await fetch(
+      const response = await axios.post(
         // "https://itc-backend-wa0t.onrender.com/api/submit",
-         `${backendUrl}/api/submit` ,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          }, 
-          body: JSON.stringify(formData),
-        },
+        `${backendUrl}/api/submit`,
+        formData,
       );
-      if (response.ok) {
-        toast.success(
-          "Thanks For Applying, Our Excutive Will Contact You Within 24 Hour",
+      if (response.status === 200) {
+        toast.success(response.data.message, {
+          position: "top-left",
+          autoClose: 20000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+        setIsFormOpen(false);
+      } else {
+        return toast.error(
+          response.data.message || "We Ara Updating Server SO Please Try Again",
           {
             position: "top-left",
             autoClose: 20000,
@@ -112,12 +126,18 @@ function PopupForm({ isFormOpen, setIsFormOpen }) {
             theme: "dark",
           },
         );
-        setIsFormOpen(false);
-      } else {
-        alert("Failed to submit form");
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      return toast.error(error?.message, {
+        position: "top-left",
+        autoClose: 20000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     }
   };
 
@@ -256,6 +276,33 @@ function PopupForm({ isFormOpen, setIsFormOpen }) {
                 required
               />
             </div>
+
+            <InputSelect
+              name={"available_investment_(select_one)"}
+              options={[
+                "₹5_lakhs_to_₹10_lakhs",
+                "₹10_lakhs_to_₹25_lakhs",
+                "₹25_lakhs_and_above",
+              ]}
+              label={"Selct Your Estimated Investment Capacity"}
+              placeholder={"Enter your name"}
+              value={formData["available_investment_(select_one)"]}
+              handleChange={handleChange}
+            />
+            <InputSelect
+              name={"preferred_franchisee_segment_(select_one)"}
+              options={[
+                "cigarettes_and_cigars",
+                "education",
+                "fmcg",
+                "personal_care",
+              ]}
+              label={"Preferred Franchisee Segment"}
+              placeholder={"Enter your name"}
+              value={formData["preferred_franchisee_segment_(select_one)"]}
+              handleChange={handleChange}
+            />
+
             {postOffices.length > 0 && (
               <div>
                 <label

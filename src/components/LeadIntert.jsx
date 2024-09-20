@@ -15,19 +15,16 @@ const XLSFileUpload = () => {
     const isExcutiveLogged = localStorage.getItem("adminLogged");
 
     if (!isExcutiveLogged) {
-      toast.error(
-        "You are not authorized to access this page.",
-        {
-          position: "top-left",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        },
-      );
+      toast.error("You are not authorized to access this page.", {
+        position: "top-left",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
       setTimeout(() => {
         window.location.href = "/";
       }, 2000);
@@ -36,9 +33,15 @@ const XLSFileUpload = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     if (!file) {
-      setMessage("Please select a file to upload.");
-      return;
+      toast.success("Please Upload a Vlid Exel FIle", {
+        position: "top-left",
+        autoClose: 2500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     }
 
     const formData = new FormData();
@@ -46,7 +49,6 @@ const XLSFileUpload = () => {
     let isExcutiveMode = localStorage.getItem("excutiveLogged");
     formData.append("isExcutiveMode", isExcutiveMode);
     try {
-      setLoading(true);
       const response = await axios.post(
         `${backendUrl}/api/lead/insert`,
         formData,
@@ -63,7 +65,7 @@ const XLSFileUpload = () => {
           pauseOnHover: true,
         });
       } else {
-        toast.error(response.data.message, {
+        toast.error(response?.data?.message, {
           position: "top-left",
           autoClose: 1500,
           hideProgressBar: false,
@@ -73,10 +75,15 @@ const XLSFileUpload = () => {
       }
     } catch (error) {
       console.log(error);
-      setMessage("Error uploading file. Please try again.");
+      toast.error(error?.message, {
+        position: "top-left",
+        autoClose: 1500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     } finally {
       setLoading(false);
-      setFile(null);
     }
   };
   return (
@@ -94,7 +101,14 @@ const XLSFileUpload = () => {
           />
           {loading ? (
             <div className="flex justify-center">
-              <div className="loader"></div>
+              <div className="loader">
+                <img
+                  className="h-[50px] w-[100%]"
+                  src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif"
+                  alt=""
+                  srcset=""
+                />
+              </div>
             </div>
           ) : (
             <button

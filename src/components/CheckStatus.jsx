@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { backendUrl } from "../helpers";
+import { toast } from "react-toastify";
 
 export const CheckStatus = () => {
   const [showForm, setShowForm] = useState("customer");
@@ -38,12 +39,35 @@ export const CheckStatus = () => {
           window.location.href = "/excutive-dashboard";
         }
       } else {
-        setError("Invalid credentials");
+        return toast.error(
+          res?.data.message || "Something went wrong, Please try again later",
+          {
+            position: "top-left",
+            autoClose: 20000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          },
+        );
       }
       setError("");
     } catch (err) {
-      alert(err);
-      setError("Invalid credentials");
+      return toast.error(
+        err.message || "Something went wrong, Please try again later",
+        {
+          position: "top-left",
+          autoClose: 20000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        },
+      );
     }
   };
 

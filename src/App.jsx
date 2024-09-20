@@ -21,6 +21,7 @@ import ScheduleMeetingForm from "./components/ShadualeDate.jsx";
 import LeadIntert from "./components/LeadIntert.jsx";
 import AdminUserEdit from "./components/AdminUserEdit.jsx";
 import LeadPanel from "./components/LeadPanel.jsx";
+import AddLeadByExcutive from "./components/AddLeadByExcutive.jsx";
 function App() {
   const [isFormOpen, setIsFormOpen] = useState(true);
 
@@ -54,12 +55,15 @@ function App() {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/excutive-dashboard" element={<AdminDashboardForUser />} />
         <Route path="/admin/insert" element={<LeadIntert />} />
+        <Route path="/add-lead-by-excutive" element={<AddLeadByExcutive />} />
         <Route path="/addaccount" element={<AddAccount />} />
         <Route path="/customer-dashboard" element={<CustomerDashboard />} />
         <Route path="/customer-dashboard/lead" element={<LeadPanel />} />
-   
         <Route path="/customer-dashboard/users" element={<AdminUser />} />
-        <Route path="/customer-dashboard/users/edit" element={<AdminUserEdit />} />
+        <Route
+          path="/customer-dashboard/users/edit"
+          element={<AdminUserEdit />}
+        />
         <Route
           path="/customer-dashboard/users/add-user"
           element={<AddUser />}

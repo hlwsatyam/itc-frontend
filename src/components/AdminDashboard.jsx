@@ -447,6 +447,8 @@ const AdminDashboard = () => {
                     event.target.tagName !== "BUTTON" &&
                     !event.target.closest("button")
                   ) {
+                    const allId = leads.map((i) => i._id);
+                    localStorage.setItem("AllID", JSON.stringify(allId));
                     navigate("/customer-dashboard/lead", {
                       state: { leadId: lead._id, isAdminClicked: true },
                     });
@@ -458,7 +460,10 @@ const AdminDashboard = () => {
               >
                 {hoveredRowIndex === index ? (
                   <td colSpan="8" className="px-4 py-3">
-                    <td className="px-4 py-3">{lead.name}</td>
+                    <td className="px-4 py-3">
+                      {" "}
+                      {index + 1}. {lead.name}
+                    </td>
                     <td className="px-4 py-3">{lead.email}</td>
                     <td className="px-4 py-3">{lead.mobile}</td>
                     <td className="px-4 py-3">
@@ -588,7 +593,10 @@ const AdminDashboard = () => {
                   </td>
                 ) : (
                   <>
-                    <td className="px-4 py-3">{lead.name}</td>
+                    <td className="px-4 py-3">
+                      {" "}
+                      {index + 1}. {lead.name}
+                    </td>
                     <td className="px-4 py-3">{lead.email}</td>
                     <td className="px-4 py-3">{lead.mobile}</td>
                     <td className="px-4 py-3">

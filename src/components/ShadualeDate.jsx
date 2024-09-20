@@ -10,7 +10,7 @@ import axios from "axios";
 Modal.setAppElement("#root"); // Important for accessibility
 
 const ScheduleMeetingForm = ({
-  fetchLead=()=>{},
+  fetchLead = () => {},
   isAdmin,
   isExcutiveMode = false,
   isOpen = false,
@@ -31,6 +31,15 @@ const ScheduleMeetingForm = ({
       .get(`${backendUrl}/api/lead/get-shadualeTime/${id}`)
       .then((res) => {
         if (res.status === 200) {
+          const dt = () => {
+            const backendDate = res.data.date; // "22/09" format
+            const [day, month] = backendDate.split("/"); // Extract day and month
+            const fullDate = new Date(2024, month - 1, day); // Create a new Date object for 2024
+            setSelectedDate(fullDate);
+          };
+
+          res.data?.date ? dt() : null;
+          res.data.time ? setSelectedTime(res.data.time) : null;
           setShadualedMesage(res.data.message);
         }
       });
@@ -49,6 +58,7 @@ const ScheduleMeetingForm = ({
         new Date(startTime).toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
+          hour12: true, // Ensures AM/PM format
         }),
       );
       startTime.setMinutes(startTime.getMinutes() + 10);
@@ -64,8 +74,10 @@ const ScheduleMeetingForm = ({
       const response = await axios.post(
         `${backendUrl}/api/lead/update-shadualeTime`,
         {
-          excutiveId: localStorage.getItem("excutiveLogged"),
+          selectedTime,
+          executiveId: localStorage.getItem("excutiveLogged"),
           id,
+          isAdmin,
           selectedDate: formatDate(selectedDate).date,
           shaduleDateCount: formatDate(selectedDate).count,
           shadualedMesage,
@@ -84,9 +96,8 @@ const ScheduleMeetingForm = ({
           theme: "dark",
         });
         if (isExcutiveMode) fetchLead(localStorage.getItem("excutiveLogged"));
-        if (isAdmin) fetchLead( );
+        if (isAdmin) fetchLead();
         closeModal();
-        
       } else {
         toast.error(response.data.message, {
           position: "top-left",
@@ -154,7 +165,7 @@ const ScheduleMeetingForm = ({
               value={shadualedMesage}
               onChange={(e) => setShadualedMesage(e.target.value)}
             />
-            {/* <select
+            <select
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
               className="w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -167,7 +178,7 @@ const ScheduleMeetingForm = ({
                   {time}
                 </option>
               ))}
-            </select> */}
+            </select>
           </div>
           <div className="flex justify-end">
             <button

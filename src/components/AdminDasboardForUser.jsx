@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui";
-import { BiBook, BiEdit, BiLogOut, BiUpload } from "react-icons/bi";
+import { BiBook, BiEdit, BiLogOut, BiPlus, BiUpload } from "react-icons/bi";
 import {
   BsBank,
   BsCheckCircle,
@@ -17,14 +17,14 @@ import { TiCancel, TiTime } from "react-icons/ti";
 import { FiDelete } from "react-icons/fi";
 import { toast } from "react-toastify";
 import EditCustomerDetailForm from "./EditCustomerDetailForm";
-import { backendUrl, sumDateAndMonth } from "../helpers";
+import { backendUrl, compareTimes, sumDateAndMonth } from "../helpers";
 import { CgUserAdd } from "react-icons/cg";
 import ScheduleMeetingForm from "./ShadualeDate";
 import { useNavigate } from "react-router-dom";
 
 const AdminDashboardForUser = () => {
   const [leads, setLeads] = useState([]);
- const navigate=useNavigate()
+  const navigate = useNavigate();
   const [permissions, setPermissions] = useState({});
   const [hoveredRowIndex, setHoveredRowIndex] = useState(null);
 
@@ -53,7 +53,6 @@ const AdminDashboardForUser = () => {
   // Fetch data when debouncedSearchTerm changes
 
   const fetchData = async (id) => {
-    
     try {
       const url =
         debouncedSearchTerm === ""
@@ -106,7 +105,7 @@ const AdminDashboardForUser = () => {
         progress: undefined,
         theme: "dark",
       });
-      fetchData(localStorage.getItem("excutiveLogged"))
+      fetchData(localStorage.getItem("excutiveLogged"));
     }
   };
   const sendwelcomeHandler = async (id) => {
@@ -125,7 +124,7 @@ const AdminDashboardForUser = () => {
         progress: undefined,
         theme: "dark",
       });
-      fetchData(localStorage.getItem("excutiveLogged"))
+      fetchData(localStorage.getItem("excutiveLogged"));
     }
   };
   const sendCancelHandler = async (id) => {
@@ -298,7 +297,7 @@ const AdminDashboardForUser = () => {
           progress: undefined,
           theme: "dark",
         });
-        fetchData(localStorage.getItem("excutiveLogged"))
+        fetchData(localStorage.getItem("excutiveLogged"));
       }
     } catch (error) {
       console.error("Error updating lead status:", error);
@@ -313,6 +312,10 @@ const AdminDashboardForUser = () => {
         theme: "dark",
       });
     }
+  };
+
+  const navigateToAddLeadByExcutive = () => {
+    window.location.href = "/add-lead-by-excutive";
   };
 
   const handleFileChangeApprooval = async (event, id) => {
@@ -442,8 +445,8 @@ const AdminDashboardForUser = () => {
         id={currentUpdateID}
       />
       <ScheduleMeetingForm
-     isExcutiveMode={true}
-     fetchLead={fetchData}
+        isExcutiveMode={true}
+        fetchLead={fetchData}
         setIsOpen={setModalIsOpen}
         id={currentClickedID}
         isOpen={modalIsOpen}
@@ -466,6 +469,11 @@ const AdminDashboardForUser = () => {
           placeholder="Search"
           className="rounded-lg border border-gray-300 px-4 py-2 text-[12px]"
         />{" "}
+        <ToggleButton
+          isGlobalShadualeBtnClicked={isGlobalShadualeBtnClicked}
+          setIsGlobalShadualeBtnClicked={setIsGlobalShadualeBtnClicked}
+          title={"Show Shadualed Lead"}
+        />
         {/* <Button
           className="!px-2 !py-1 text-[11px]"
           title={""}
@@ -480,6 +488,12 @@ const AdminDashboardForUser = () => {
           className="!px-2 !py-1 text-[0px] sm:text-[11px]"
           Icon={BiUpload}
         />{" "} */}
+        <Button
+          className="!px-2 !py-1 text-[11px]"
+          title={""}
+          onClick={() => navigateToAddLeadByExcutive()}
+          Icon={BiPlus}
+        />
         <Button
           onClick={logoutHandler}
           title="Logout"
@@ -517,7 +531,14 @@ const AdminDashboardForUser = () => {
 
                 if (lead.leadManagementStages !== "Junk Lead") {
                   if (lead?.shaduleDateCount) {
-                    if (lead.shaduleDateCount <= sumDateAndMonth()) {
+                    if (
+                      isGlobalShadualeBtnClicked ||
+                      (sumDateAndMonth(
+                        lead.shaduleDateCount,
+                        lead?.shadualeTime,
+                      ) &&
+                        compareTimes(lead?.selectedTime))
+                    ) {
                       return (
                         <tr
                           key={index}
@@ -528,13 +549,22 @@ const AdminDashboardForUser = () => {
                               event.target.tagName !== "BUTTON" &&
                               !event.target.closest("button")
                             ) {
+                              const allId = leads.map((i) => i._id);
+                              localStorage.setItem(
+                                "AllID",
+                                JSON.stringify(allId),
+                              );
                               navigate("/customer-dashboard/lead", {
-                                state: { leadId: lead._id, excutiveID: localStorage.getItem('excutiveLogged') },
+                                state: {
+                                  leadId: lead._id,
+                                  excutiveID:
+                                    localStorage.getItem("excutiveLogged"),
+                                },
                               });
                             }
                           }}
                           onMouseLeave={() => setHoveredRowIndex(null)}
-                          className={`border-t ${lead?.isSomethingChange ? "bg-green-700/60" : ""} hover:bg-gray-300`}
+                          className={`border-t ${lead?.isSomethingChange ? lead?.selectedTime?"bg-red-700/60" :"bg-green-700/60" : ""} hover:bg-gray-300`}
                         >
                           {hoveredRowIndex === index ? (
                             <td colSpan="8" className="px-4 py-3">
@@ -557,11 +587,9 @@ const AdminDashboardForUser = () => {
                                   {lead.pincode}
                                 </span>
                               </td>
-
                               <td className="px-4 py-3">
                                 {new Date(lead.createdAt).toLocaleDateString()}
                               </td>
-
                               <div className="flex justify-center space-x-2">
                                 {permissions?.Welcome && (
                                   <Button
@@ -668,7 +696,7 @@ const AdminDashboardForUser = () => {
                                 )}
                                 <Button
                                   className="!text-[10px]"
-                                  title={lead?.shadualeTime || ""}
+                                  title={`${lead?.shadualeTime || ""} ${lead?.selectedTime || ""}`}
                                   onClick={() => shadualeLeadHandler(lead._id)}
                                   Icon={TiTime}
                                 />
@@ -746,8 +774,17 @@ const AdminDashboardForUser = () => {
                             event.target.tagName !== "BUTTON" &&
                             !event.target.closest("button")
                           ) {
+                            const allId = leads?.map((i) => i._id);
+                            localStorage.setItem(
+                              "AllID",
+                              JSON.stringify(allId),
+                            );
                             navigate("/customer-dashboard/lead", {
-                              state: { leadId: lead._id, excutiveID: localStorage.getItem('excutiveLogged') },
+                              state: {
+                                leadId: lead._id,
+                                excutiveID:
+                                  localStorage.getItem("excutiveLogged"),
+                              },
                             });
                           }
                         }}
@@ -898,6 +935,13 @@ const AdminDashboardForUser = () => {
                                 <option value="New Lead">New Lead</option>
                                 <option value="Callback">Callback</option>
                                 <option value="Connected">Connected</option>
+                                <option value="details sent on WhatsApp">
+                                  details sent on WhatsApp
+                                </option>
+                                <option value="welcome mail sent">
+                                  welcome mail sent
+                                </option>
+
                                 <option value="Junk Lead">Junk Lead</option>
                                 <option value="Interested">Interested</option>
 
@@ -965,3 +1009,31 @@ const AdminDashboardForUser = () => {
 };
 
 export default AdminDashboardForUser;
+
+const ToggleButton = ({
+  title,
+  isGlobalShadualeBtnClicked,
+  setIsGlobalShadualeBtnClicked,
+}) => {
+  const toggleSwitch = () => {
+    setIsGlobalShadualeBtnClicked(!isGlobalShadualeBtnClicked);
+  };
+
+  return (
+    <div className="flex items-center space-x-4">
+      <span className="hidden font-medium text-gray-700 sm:block">{title}</span>
+      <div
+        className={`flex h-8 w-16 cursor-pointer items-center rounded-full p-1 transition-colors duration-300 ${
+          isGlobalShadualeBtnClicked ? "bg-green-500" : "bg-gray-300"
+        }`}
+        onClick={toggleSwitch}
+      >
+        <div
+          className={`h-6 w-6 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+            isGlobalShadualeBtnClicked ? "translate-x-7" : "translate-x-0"
+          }`}
+        ></div>
+      </div>
+    </div>
+  );
+};
